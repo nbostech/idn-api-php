@@ -1,0 +1,12 @@
+{
+  "config": {
+    "vendor-dir": "application/vendor"
+  },
+  "require": {
+   },
+   "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "mockery/mockery": "~0.8",
+        "guzzlehttp/guzzle": "~6.0"
+    }
+}

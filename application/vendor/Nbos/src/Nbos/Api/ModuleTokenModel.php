@@ -21,14 +21,15 @@ class ModuleTokenModel implements   ModuleToken {
 
         \Nbos\Modules\Ids\IDS::register("identity", '\Nbos\Modules\Identity\IdentityApi');
     }
-    function init($bearerToken, $moduleConfig, $storage='')
+    function init($bearerToken, $moduleConfig)
     {
+        $storage = $moduleConfig['storage'];
         switch ($storage) {
-            case 'memcache':
-                            \Nbos\Api\ApiContext::registerApiContext(new \Nbos\Api\MemCacheApiContext($moduleConfig));
-                            break;
+            case 'PDO':
+                        \Nbos\Storage\StorageApiContext::registerApiContext(new \Nbos\Storage\PDOApiContext($moduleConfig));
+                        break;
             default:
-                    \Nbos\Api\InMemoryApiContext::registerApiContext(new \Nbos\Api\InMemoryApiContext($moduleConfig));
+                    \Nbos\Storage\StorageApiContext::registerApiContext(new \Nbos\Api\InMemoryApiContext($moduleConfig));
                     break;
         }
 

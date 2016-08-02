@@ -114,7 +114,7 @@ class NetworkApi
                 break;
         }
         if($authorization == true) {
-            $apiContext =  \Nbos\Api\InMemoryApiContext::get($moduleName);
+            $apiContext =  \Nbos\Storage\StorageApiContext::get($moduleName);
             $clientToken = $apiContext->getClientToken();
 
             $client_token = $clientToken->getAccess_token();

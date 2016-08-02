@@ -65,22 +65,31 @@ class IdentityRemoteApi {
     }
     public function getModuleToken($moduleName){
 
-        $apiContext =  \Nbos\Api\InMemoryApiContext::get($moduleName);
+        $apiContext =  \Nbos\Storage\StorageApiContext::get($moduleName);
 
-        $body = array(
-            "client_id" => $apiContext->getClientCredentials()['client'],
-            "client_secret" => $apiContext->getClientCredentials()['secret'],
-            "grant_type" => "client_credentials",
-            "scope" => "scope:oauth.token.verify"
-        );
+        if($apiContext->isCached('ModuleToken'.$moduleName)) {
 
-        $response =  $this->httpClient->post($this->tokenUrl, $body);
-        if($response instanceof \Nbos\Api\SuccessResponse){
             $token = new TokenApiModel();
-            //$token->setData($response->getBody()->getContents());
-            $token->setData($response->getMessage());
+            $token->setData($apiContext->getCached('ModuleToken'.$moduleName));
             $apiContext->setClientToken($token);
             return true;
+        }else{
+            $body = array(
+                "client_id" => $apiContext->getClientCredentials()['client'],
+                "client_secret" => $apiContext->getClientCredentials()['secret'],
+                "grant_type" => "client_credentials",
+                "scope" => "scope:oauth.token.verify"
+            );
+
+            $response =  $this->httpClient->post($this->tokenUrl, $body);
+            if($response instanceof \Nbos\Api\SuccessResponse){
+                $token = new TokenApiModel();
+                //$token->setData($response->getBody()->getContents());
+                $token->setData($response->getMessage());
+                $apiContext->setClientToken($token);
+                $apiContext->setCache('ModuleToken'.$moduleName, $response->getMessage());
+                return true;
+            }
         }
 
         return false;
@@ -88,20 +97,29 @@ class IdentityRemoteApi {
     }
     public function validateRequest($bearerToken, $moduleName, $moduleKey){
 
-        // $apiContext =  \Nbos\Api\InMemoryApiContext::get($moduleName);
+        $apiContext =  \Nbos\Storage\StorageApiContext::get($moduleName);
         if($this->getModuleToken($moduleName)) {
-            $response =  $this->httpClient->get($this->tokenVerifyUrl."/".$bearerToken, '',true, '', $moduleName, $moduleKey);
-            if($response instanceof \Nbos\Api\SuccessResponse){
-                $data = json_decode($response->getMessage(),true);
-                /*
-                 * Check if token expired
-                 */
-                if($data['expired'] == true or $data['expired'] === ''){
-                    $resp = new ValidationErrorResponse();
-                    $resp->setMessage('Token expired');
-                    return $resp;
+
+            if($apiContext->isCached('Token:'.$bearerToken)) {
+                $response = new \Nbos\Api\SuccessResponse();
+                $response->setMessage($apiContext->getCached('Token:'.$bearerToken));
+                return $response;
+            }else{
+                $response =  $this->httpClient->get($this->tokenVerifyUrl."/".$bearerToken, '',true, '', $moduleName, $moduleKey);
+                if($response instanceof \Nbos\Api\SuccessResponse){
+                    $data = json_decode($response->getMessage(),true);
+                    /*
+                     * Check if token expired
+                     */
+                    if($data['expired'] == true or $data['expired'] === ''){
+                        $resp = new ValidationErrorResponse();
+                        $resp->setMessage('Token expired');
+                        return $resp;
+                    }
+                    $apiContext->setCache('Token:'.$bearerToken, $response->getMessage());
                 }
             }
+
             return $response;
         }
 

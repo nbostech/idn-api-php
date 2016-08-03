@@ -93,6 +93,7 @@ class NetworkApi
 
         $requestBody =  $this->prepareRequestBody($body, $authorization, $bodyType, $moduleName, $moduleKey);
         try{
+
             $response = $this->client()->request('POST', $url, $requestBody);
             return $this->sendResponse($response->getStatusCode(), $response);
         }catch (\GuzzleHttp\Exception\ClientException $e){
@@ -117,10 +118,10 @@ class NetworkApi
             $apiContext =  \Nbos\Storage\StorageApiContext::get($moduleName);
             $clientToken = $apiContext->getClientToken();
 
-            $client_token = $clientToken->getAccess_token();
+            $bearerToken = $clientToken->getAccess_token();
 
             $requestBody['headers'] = [
-                'Authorization' => "Bearer $client_token"
+                'Authorization' => "Bearer $bearerToken"
             ];
             if($moduleKey !== false){
                 $requestBody['headers']['X-N-ModuleKey'] =  $moduleKey;

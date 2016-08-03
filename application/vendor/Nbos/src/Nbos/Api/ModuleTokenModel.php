@@ -20,6 +20,7 @@ class ModuleTokenModel implements   ModuleToken {
     public function __construct(){
 
         \Nbos\Modules\Ids\IDS::register("identity", '\Nbos\Modules\Identity\IdentityApi');
+        \Nbos\Modules\Ids\IDS::register("core", '\Nbos\Modules\Core\CoreApi');
     }
     function init($bearerToken, $moduleConfig)
     {

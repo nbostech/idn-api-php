@@ -8,7 +8,7 @@ class Todo extends API_Controller {
     {
         parent::__construct();
 
-        $this->load->model('tenant_model','NBOSTenantModel');
+        $this->load->model('nbos/tenant_model','NBOSTenantModel');
 
         /*
          * Module config
@@ -23,7 +23,7 @@ class Todo extends API_Controller {
             $this->moduleToken->load($response->getMessage());
 
             //Check if Tenant exist and module  support's requesting tenant
-            if(!$this->NBOSTenantModel->isEnabled($this->moduleToken->getTenantId())) {
+            if(!$this->NBOSTenantModel->isModuleEnabled($this->moduleToken->getTenantId(), $moduleConfig['name'])) {
                 $this->response_internal_error([
                     "messageCode" => "module.access",
                     "message" => $this->lang->line('text_module_invalid_tenant')

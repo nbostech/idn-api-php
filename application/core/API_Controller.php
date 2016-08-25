@@ -17,6 +17,32 @@ class API_Controller extends REST_Controller
     {
         // Construct the parent class
         parent::__construct();
+        $this->load->model('nbos/tenant_model','NBOSTenantModel');
+        /*
+                 * Module config
+                 */
+        $config =  include ("./config.php");
+        $moduleConfig = $config['moduleApiServer']['todo'];
+
+        $this->moduleToken = new \Nbos\Api\ModuleTokenModel();
+        $response = $this->moduleToken->init($this->getBearerToken(), $moduleConfig);
+
+        if($response instanceof \Nbos\Api\SuccessResponse){
+            $this->moduleToken->load($response->getMessage());
+
+            //Check if Tenant exist and module  support's requesting tenant
+            if(!$this->NBOSTenantModel->isModuleEnabled($this->moduleToken->getTenantId(), $moduleConfig['name'])) {
+                $this->response_internal_error([
+                    "messageCode" => "module.access",
+                    "message" => $this->lang->line('text_module_invalid_tenant')
+                ]);
+            }
+        }else{
+            $this->response_forbidden([
+                "messageCode" => "module.access",
+                "message" => $this->lang->line('text_module_invalid_requesting_access_token')
+            ]);
+        }
 
         if (isset($_GET['clientId'])) {
             $_GET['client_id'] = $_GET['clientId'];
@@ -155,7 +181,7 @@ class API_Controller extends REST_Controller
     function response_forbidden($data = [])
     {
         // HTTP 403
-        $this->response($data, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+        $this->response($data, REST_Controller::HTTP_FORBIDDEN);
     }
 
     function response_invalid_method($data = [])

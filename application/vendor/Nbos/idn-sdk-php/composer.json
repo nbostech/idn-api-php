@@ -1,0 +1,42 @@
+{
+    "name": "nbos/idn-sdk-php",
+    "description": "Nbos SDK for PHP",
+    "keywords": ["nbos", "sdk", "idn"],
+    "type": "library",
+    "homepage": "https://github.com/nbostech",
+    "license": "NBOS Platform",
+    "authors": [
+        {
+            "name": "Nbos",
+            "homepage": "https://github.com/nbostech/wavelabs-php-client-api/graphs/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "mockery/mockery": "~0.8",
+        "guzzlehttp/guzzle": "~5.0"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Allows for implementation of the Guzzle HTTP client"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nbos\\": "src/Nbos/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nbos\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.x-dev"
+        }
+    }
+}
+

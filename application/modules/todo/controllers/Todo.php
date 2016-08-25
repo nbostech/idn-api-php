@@ -6,35 +6,8 @@ class Todo extends API_Controller {
 
     function __construct()
     {
+
         parent::__construct();
-
-        $this->load->model('nbos/tenant_model','NBOSTenantModel');
-
-        /*
-         * Module config
-         */
-        $config =  include ("./config.php");
-        $moduleConfig = $config['moduleApiServer']['todo'];
-
-        $this->moduleToken = new \Nbos\Api\ModuleTokenModel();
-        $response = $this->moduleToken->init($this->getBearerToken(), $moduleConfig);
-
-        if($response instanceof \Nbos\Api\SuccessResponse){
-            $this->moduleToken->load($response->getMessage());
-
-            //Check if Tenant exist and module  support's requesting tenant
-            if(!$this->NBOSTenantModel->isModuleEnabled($this->moduleToken->getTenantId(), $moduleConfig['name'])) {
-                $this->response_internal_error([
-                    "messageCode" => "module.access",
-                    "message" => $this->lang->line('text_module_invalid_tenant')
-                ]);
-            } 
-        }else{
-            $this->response_forbidden([
-                "messageCode" => "module.access",
-                "message" => $this->lang->line('text_module_invalid_requesting_access_token')
-            ]);
-        }
 
         $this->load->library('form_validation');
         $this->load->model('todo_model');
@@ -74,24 +47,33 @@ class Todo extends API_Controller {
     public function create_post(){
 
         if($this->moduleToken->isMember()){
-
             if($this->input->post("title") == ''){
                 $this->setError("todo.title", "Title empty",'title');
             }
             if($this->input->post("desc") == ''){
-                $this->setError("todo.description", "Title empty",'description');
+                $this->setError("todo.description", "Title empty",'desc');
             }
             // print_r($this->errors);
             if($this->hasErrors()) {
                 $this->response_error();
             }else {
-                $this->response_success(array("message"=>"Data entered successfully"));
+                //$this->response_success(array('status'=>true,"message"=>"Data entered successfully"));
+                $this->response_internal_error([
+                    "messageCode" => "module.server",
+                    "message" => "Failed to connect to db. Reconnect after sometime."
+                ]);
             }
         }else{
             $this->response_forbidden([
-                "messageCode" => "todo.user",
+                "messageCode" => "module.user",
                 "message" => "Invalid user token"
             ]);
         }
+    }
+    public function modify_post(){
+        $this->response_forbidden([
+            "messageCode" => "module.user.unauthorized",
+            "message" => "Unauthorized to update others TODO"
+        ]);
     }
 }

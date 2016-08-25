@@ -63,13 +63,14 @@ $route['notifications/v0/(:any)/config']['GET'] = 'notifications/parse/config';
 
 $route['default_controller'] = 'Base';
 $route['404_override'] = 'nbos/base/notfound';
-$route['405_override'] = 'nbos/base/invalidmethod';
+//$route['405_override'] = 'nbos/base/invalidmethod';
 $route['500_override'] = 'nbos/base/internalerror';
 
 $route['todo/v0/todos']['GET'] = 'todo/todo/list';
 $route['todo/v0/mytodos']['GET'] = 'todo/todo/mylist';
 
 $route['todo/v0/todo']['POST'] = 'todo/todo/create';
+$route['todo/v0/modify/(:num)']['POST'] = 'todo/todo/modify';
 $route['todos/v0/todo/(:any)']['GET']  = 'todo/todo/view/$1';
 
 $route['todos/edit/(:any)'] = 'todo/todo/edit/$1';
